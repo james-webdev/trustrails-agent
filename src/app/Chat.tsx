@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { ComparisonCard } from "./components/ComparisonCard";
 import { DebugPanel } from "./components/DebugPanel";
-import { FlowExplainer } from "./components/FlowExplainer";
 import { ProductRow } from "./components/ProductCard";
 import { Prose } from "./components/Prose";
 import { ThemeToggle } from "./components/ThemeToggle";
@@ -15,6 +14,10 @@ const SUGGESTIONS = [
   "What's the cheapest 27 inch monitor?",
   "Compare prices for the Sony WH-1000XM5",
   "Any deals on gaming laptops under £900?",
+  "Best wireless mouse under £20",
+  "Cheapest iPhone case",
+  "Show me Samsung TVs on sale",
+  "Which retailer has the best price on the AirPods Pro?",
 ];
 
 export default function Chat() {
@@ -153,8 +156,6 @@ export default function Chat() {
       </header>
 
       <div className="flex-1 space-y-6 pb-4">
-        <FlowExplainer />
-
         {messages.length === 0 && (
           <div className="flex flex-wrap justify-center gap-2">
             {SUGGESTIONS.map((s) => (
