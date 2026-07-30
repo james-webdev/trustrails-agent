@@ -41,7 +41,9 @@ export type Offer = {
   image_url?: string;
 };
 
+// enabled: false keeps a model wired up end-to-end but off the public demo —
+// flip it on once server-side spend/rate limiting is durable (see route.ts).
 export const MODEL_OPTIONS = [
-  { key: "haiku", label: "Haiku 4.5", tag: "Free" },
-  { key: "sonnet", label: "Sonnet 5", tag: "Smarter" },
+  { key: "haiku", label: "Haiku 4.5", tag: "Free", enabled: true },
+  { key: "sonnet", label: "Sonnet 5", tag: "Smarter", enabled: false },
 ] as const;

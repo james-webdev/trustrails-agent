@@ -12,13 +12,15 @@ import { ApiHistory, ChatMessage, MODEL_OPTIONS } from "./lib/types";
 
 const SUGGESTIONS = [
   "What's the cheapest 27 inch monitor?",
-  "Compare prices for the Sony WH-1000XM5",
-  "Any deals on gaming laptops under £900?",
+  "Compare prices for the iPhone 16",
+  "Any gaming laptops under £900?",
   "Best wireless mouse under £20",
   "Cheapest iPhone case",
-  "Show me Samsung TVs on sale",
+  "Show me Samsung TVs",
   "Which retailer has the best price on the AirPods Pro?",
 ];
+
+const enabledModels = MODEL_OPTIONS.filter((opt) => opt.enabled);
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -26,7 +28,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dark, setDark] = useState(true);
-  const [model, setModel] = useState<string>(MODEL_OPTIONS[0].key);
+  const [model, setModel] = useState<string>(enabledModels[0].key);
   const apiHistory = useRef<ApiHistory>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -137,22 +139,24 @@ export default function Chat() {
           </a>{" "}
           over the network, live, for every answer below.
         </p>
-        <div className="mt-4 inline-flex rounded-full border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
-          {MODEL_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setModel(opt.key)}
-              className={
-                "rounded-full px-3 py-1.5 text-xs font-medium transition-colors " +
-                (model === opt.key
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100")
-              }
-            >
-              {opt.label} <span className="opacity-70">· {opt.tag}</span>
-            </button>
-          ))}
-        </div>
+        {enabledModels.length > 1 && (
+          <div className="mt-4 inline-flex rounded-full border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
+            {enabledModels.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setModel(opt.key)}
+                className={
+                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors " +
+                  (model === opt.key
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100")
+                }
+              >
+                {opt.label} <span className="opacity-70">· {opt.tag}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="flex-1 space-y-6 pb-4">

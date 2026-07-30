@@ -8,11 +8,15 @@ const MAX_TOOL_ITERATIONS = 5;
 // Approximate per-token cost in USD — confirm against the current rate on
 // console.anthropic.com before trusting these for real budgeting, they're
 // only precise enough to catch a runaway spike, not for invoicing.
-const MODELS: Record<string, { id: string; label: string; free: boolean; inputCost: number; outputCost: number }> = {
+const MODELS: Record<
+  string,
+  { id: string; label: string; free: boolean; enabled: boolean; inputCost: number; outputCost: number }
+> = {
   haiku: {
     id: "claude-haiku-4-5-20251001",
     label: "Haiku 4.5",
     free: true,
+    enabled: true,
     inputCost: 1 / 1_000_000,
     outputCost: 5 / 1_000_000,
   },
@@ -20,6 +24,9 @@ const MODELS: Record<string, { id: string; label: string; free: boolean; inputCo
     id: "claude-sonnet-5",
     label: "Sonnet 5",
     free: false,
+    // Off until spend/rate limiting below is durable across Vercel instances
+    // (currently in-memory, resets on cold start) — see the note there.
+    enabled: false,
     inputCost: 3 / 1_000_000,
     outputCost: 15 / 1_000_000,
   },
@@ -28,7 +35,7 @@ const DEFAULT_MODEL_KEY = "haiku";
 const DAILY_SPEND_CEILING_USD = 5;
 
 function resolveModel(key: unknown): { key: string; config: (typeof MODELS)[string] } {
-  const modelKey = typeof key === "string" && key in MODELS ? key : DEFAULT_MODEL_KEY;
+  const modelKey = typeof key === "string" && key in MODELS && MODELS[key].enabled ? key : DEFAULT_MODEL_KEY;
   return { key: modelKey, config: MODELS[modelKey] };
 }
 
@@ -57,6 +64,9 @@ function looksLikeBot(req: Request): boolean {
 }
 
 // ---- Rate limiting + spend ceiling (in-memory, best-effort per instance) ----
+// Resets on every cold start and isn't shared across Vercel instances/regions —
+// a real cap, not a durable one. Move to Vercel KV/Upstash before relying on
+// this under real traffic.
 
 const ipHits = new Map<string, number[]>();
 const IP_LIMIT = 20;
