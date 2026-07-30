@@ -11,11 +11,11 @@ import { extractOffers, extractProducts } from "./lib/extract";
 import { ApiHistory, ChatMessage, MODEL_OPTIONS } from "./lib/types";
 
 const SUGGESTIONS = [
-  "What's the cheapest 27 inch monitor?",
-  "Compare prices for the iPhone 16",
+  "Compare prices on the AOC 27 inch monitor",
+  "Compare prices for the Beats Studio Pro",
   "Any gaming laptops under £900?",
-  "Best wireless mouse under £20",
-  "Cheapest iPhone case",
+  "Compare prices on the ASUS wireless mouse",
+  "Compare prices on the Fairphone charger",
   "Show me Samsung TVs",
   "Which retailer has the best price on the AirPods Pro?",
 ];
@@ -111,8 +111,8 @@ export default function Chat() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-4">
-      <header className="hero-glow relative py-8 text-center">
-        <div className="absolute right-0 top-8 flex items-center gap-2">
+      <header className="hero-glow relative pt-4 pb-8 text-center">
+        <div className="mb-4 flex items-center justify-end gap-2">
           {messages.length > 0 && (
             <button
               onClick={clearChat}
