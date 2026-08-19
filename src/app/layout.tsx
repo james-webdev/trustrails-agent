@@ -6,7 +6,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ask TrustRails — a live AI agent demo",
+  title: "Ask TrustRails: a live AI agent demo",
   description:
     "A live AI agent, built on the public TrustRails MCP server, answering real UK electronics price questions in real time.",
 };

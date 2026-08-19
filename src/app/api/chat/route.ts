@@ -284,8 +284,8 @@ async function deterministicFallback(userMessage: string) {
   return {
     reply:
       count > 0
-        ? `Demo's AI-parsed answers are at their free limit right now, but here's a plain search match for "${userMessage}" — ${count} result${count === 1 ? "" : "s"} below.`
-        : `Demo's AI-parsed answers are at their free limit right now, and a plain search for "${userMessage}" didn't find a match — try different terms.`,
+        ? `Demo's AI-parsed answers are at their free limit right now, but here's a plain search match for "${userMessage}": ${count} result${count === 1 ? "" : "s"} below.`
+        : `Demo's AI-parsed answers are at their free limit right now, and a plain search for "${userMessage}" didn't find a match. Try different terms.`,
     trace,
   };
 }
@@ -407,7 +407,7 @@ export async function POST(req: Request) {
         `est_cost=$${cost.toFixed(5)} daily_spend=$${dailySpendUsd.toFixed(4)} query="${userMessage}"`
     );
 
-    const reply = finalText || "I wasn't able to finish that lookup — try rephrasing the question.";
+    const reply = finalText || "I wasn't able to finish that lookup. Try rephrasing the question.";
 
     if (cacheKey) {
       queryCache.set(cacheKey, { reply, trace, history: messages, debugSteps, cachedAt: Date.now() });
