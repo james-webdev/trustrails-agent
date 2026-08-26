@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 export function Prose({ text }: { text: string }) {
   return (
     <div
-      className="max-w-full text-[15px] leading-relaxed text-gray-800 [&_a]:text-blue-600 [&_a]:underline
+      className="max-w-full break-words text-[15px] leading-relaxed text-gray-800 [&_a]:text-blue-600 [&_a]:underline
       [&_code]:rounded [&_code]:bg-black/5 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs
       [&_li]:ml-4 [&_li]:list-disc [&_p+p]:mt-2 [&_strong]:font-semibold
       [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm

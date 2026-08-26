@@ -4,6 +4,7 @@
 
 body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: clip;
 }
 
 button:not(:disabled) {
@@ -16,11 +17,20 @@ button:not(:disabled) {
 }
 
 /* One soft brand-blue radial behind the header, matching trustrails.app */
-.hero-glow {
-  background: radial-gradient(560px 260px at 50% 0%, rgb(37 99 235 / 0.12), transparent 70%);
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(70% 100% at 50% 0%, rgb(37 99 235 / 0.12), transparent 70%);
 }
-html.dark .hero-glow {
-  background: radial-gradient(560px 260px at 50% 0%, rgb(59 130 246 / 0.16), transparent 70%);
+html.dark .hero-glow::before {
+  background: radial-gradient(70% 100% at 50% 0%, rgb(59 130 246 / 0.16), transparent 70%);
 }
 
 @keyframes message-in {

@@ -44,8 +44,13 @@ export default function Chat() {
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
+    // Clamp to the same cap as max-h-40 (10rem). Without this the inline height
+    // is set past the CSS max-height, so the box stops growing while the caret
+    // keeps going and the text ends up scrolled half out of view.
+    const MAX = 160;
     el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
+    el.style.height = `${Math.min(el.scrollHeight, MAX)}px`;
+    el.style.overflowY = el.scrollHeight > MAX ? "auto" : "hidden";
   }, [input]);
 
   function clearChat() {
@@ -178,7 +183,7 @@ export default function Chat() {
           const offers = m.role === "assistant" && m.trace ? extractOffers(m.trace) : [];
           const products = m.role === "assistant" && m.trace ? extractProducts(m.trace) : [];
           return (
-            <div key={i} className={"message-in " + (m.role === "user" ? "text-right" : "text-left")}>
+            <div key={i} className={"message-in min-w-0 " + (m.role === "user" ? "text-right" : "text-left")}>
               {m.role === "assistant" && m.trace && m.trace.length > 0 && <TraceSummary trace={m.trace} />}
               <ComparisonCard offers={offers} />
               {offers.length === 0 && <ProductRow products={products} />}
@@ -226,14 +231,13 @@ export default function Chat() {
               send(input);
             }
           }}
-          placeholder="Ask about any UK electronics product or price…"
           rows={1}
-          className="max-h-40 flex-1 resize-none rounded-2xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-600 dark:focus:border-blue-600"
+          className="max-h-40 min-w-0 flex-1 resize-none rounded-2xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-600"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:opacity-40"
+          className="shrink-0 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:opacity-40"
         >
           Ask
         </button>

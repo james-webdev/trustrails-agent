@@ -31,7 +31,7 @@ export function ProductCard({ p }: { p: LiteProduct }) {
 export function ProductRow({ products }: { products: LiteProduct[] }) {
   if (products.length === 0) return null;
   return (
-    <div className="mb-3 flex gap-2 overflow-x-auto pt-2 pb-2">
+    <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pt-2 pb-2 sm:mx-0 sm:px-0">
       {products.map((p) => (
         <ProductCard key={p.id} p={p} />
       ))}
