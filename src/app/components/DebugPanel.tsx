@@ -45,7 +45,7 @@ export function DebugPanel({ steps, cacheHit }: { steps?: DebugStep[]; cacheHit?
 
               {step.toolCalls.map((call, j) => (
                 <div key={j} className="space-y-2 border-l-2 border-blue-200 pl-3 dark:border-blue-900">
-                  <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                  <p className="text-[11px] font-semibold break-all text-gray-500 dark:text-gray-400">
                     Tool call: <span className="font-mono text-gray-700 dark:text-gray-300">{call.name}</span>(
                     {JSON.stringify(call.input)})
                   </p>
