@@ -232,7 +232,7 @@ export default function Chat() {
             }
           }}
           rows={1}
-          className="max-h-40 min-w-0 flex-1 resize-none rounded-2xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-600"
+          className="max-h-40 min-w-0 flex-1 resize-none rounded-2xl border border-gray-200 bg-white px-4 py-2.5 text-base text-gray-900 focus:border-blue-500 focus:outline-none sm:text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-500"
         />
         <button
           type="submit"
