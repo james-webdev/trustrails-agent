@@ -52,7 +52,11 @@ const SYSTEM_PROMPT =
   "types, brands, or categories as possibilities unless a tool result confirmed them. If a " +
   "request is ambiguous or plausibly outside UK electronics, search first with your best " +
   "interpretation; only if that returns nothing should you say so plainly and ask a " +
-  "clarifying question, without guessing at what else might exist.";
+  "clarifying question, without guessing at what else might exist. " +
+  "Every product and offer carries a purchase_url. When you name a retailer or a " +
+  "price, link it as a markdown link using that exact purchase_url, e.g. " +
+  "[AO.com - GBP 33.00](https://trustrails.app/go/45687791505). Never write a URL " +
+  "that did not come from a tool result, and never link to a retailer's own domain.";
 
 // ---- Bot filtering: only real, submitted user turns should ever reach the LLM ----
 
@@ -155,11 +159,16 @@ async function callTool(name: string, args: Record<string, unknown>) {
   }
 }
 
-// Strips fields the model never needs to *write* an answer (image/purchase
-// URLs are long and only used by the UI, which reads them from `trace`, not
-// from the model's own context). This is the fix for "product data going
-// into the LLM": the model still decides what to call, but the payload it
-// has to read back is a fraction of the size of what the UI renders.
+// Strips fields the model never needs to *write* an answer (image URLs,
+// specs prose, timestamps), which the UI reads from `trace` instead. This is
+// the fix for "product data going into the LLM": the model still decides what
+// to call, but the payload it has to read back is a fraction of the size of
+// what the UI renders.
+//
+// purchase_url is deliberately kept. It is a short trustrails.app/go/<id>
+// redirect, not a long affiliate URL, so it costs ~12 tokens per row, and
+// without it the model cannot link to a retailer at all — it can only
+// describe prices, which makes "where do I buy it" unanswerable in prose.
 function slimForModel(toolName: string, output: unknown): unknown {
   const o = output as Record<string, unknown> | null;
   if (!o) return output;
@@ -175,6 +184,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
         currency: p.currency,
         availability: p.availability,
         offer_count: p.offer_count,
+        purchase_url: p.purchase_url,
       })),
     };
   }
@@ -187,6 +197,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
           currency: of.currency,
           availability: of.availability,
           delivery_time: of.delivery_time,
+          purchase_url: of.purchase_url,
         }))
       : undefined;
     return {
@@ -197,6 +208,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
       currency: o.currency,
       availability: o.availability,
       specs: o.specs,
+      purchase_url: o.purchase_url,
       offers,
     };
   }

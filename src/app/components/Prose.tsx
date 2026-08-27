@@ -14,7 +14,14 @@ export function Prose({ text }: { text: string }) {
       dark:[&_th]:border-gray-800 dark:[&_td]:border-gray-800/60"
     >
       <div className="overflow-x-auto">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ ...props }) => <a {...props} target="_blank" rel="noopener" />,
+          }}
+        >
+          {text}
+        </ReactMarkdown>
       </div>
     </div>
   );
