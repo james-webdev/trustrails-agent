@@ -1,9 +1,4 @@
-import { LiteProduct, Offer, ToolTrace } from "./types";
-
-export function isLiteProduct(v: unknown): v is LiteProduct {
-  const p = v as Partial<LiteProduct> | null;
-  return !!p && typeof p.id === "string" && typeof p.price === "number" && typeof p.purchase_url === "string";
-}
+import { Offer, ToolTrace } from "./types";
 
 export function isOffer(v: unknown): v is Offer {
   const o = v as Partial<Offer> | null;
@@ -14,22 +9,6 @@ export function isOffer(v: unknown): v is Offer {
     typeof o.price === "number" &&
     typeof o.purchase_url === "string"
   );
-}
-
-export function extractProducts(trace: ToolTrace[]): LiteProduct[] {
-  const seen = new Set<string>();
-  const products: LiteProduct[] = [];
-  for (const t of trace) {
-    const output = t.output as Record<string, unknown> | null;
-    const candidates = Array.isArray(output?.products) ? output!.products : isLiteProduct(output) ? [output] : [];
-    for (const c of candidates) {
-      if (isLiteProduct(c) && !seen.has(c.id)) {
-        seen.add(c.id);
-        products.push(c);
-      }
-    }
-  }
-  return products.slice(0, 8);
 }
 
 export function extractOffers(trace: ToolTrace[]): Offer[] {

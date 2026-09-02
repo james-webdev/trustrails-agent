@@ -3,11 +3,10 @@
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { ComparisonCard } from "./components/ComparisonCard";
 import { DebugPanel } from "./components/DebugPanel";
-import { ProductRow } from "./components/ProductCard";
 import { Prose } from "./components/Prose";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { TraceSummary } from "./components/TraceSummary";
-import { extractOffers, extractProducts } from "./lib/extract";
+import { extractOffers } from "./lib/extract";
 import { ApiHistory, ChatMessage, MODEL_OPTIONS } from "./lib/types";
 
 const SUGGESTIONS = [
@@ -181,12 +180,10 @@ export default function Chat() {
 
         {messages.map((m, i) => {
           const offers = m.role === "assistant" && m.trace ? extractOffers(m.trace) : [];
-          const products = m.role === "assistant" && m.trace ? extractProducts(m.trace) : [];
           return (
             <div key={i} className={"message-in min-w-0 " + (m.role === "user" ? "text-right" : "text-left")}>
               {m.role === "assistant" && m.trace && m.trace.length > 0 && <TraceSummary trace={m.trace} />}
               <ComparisonCard offers={offers} />
-              {offers.length === 0 && <ProductRow products={products} />}
               {m.role === "user" ? (
                 <div className="inline-block max-w-[85%] rounded-2xl rounded-br-sm bg-blue-600 px-4 py-2 text-white">
                   {m.text}
