@@ -9,14 +9,17 @@ import { TraceSummary } from "./components/TraceSummary";
 import { extractOffers } from "./lib/extract";
 import { ApiHistory, ChatMessage, MODEL_OPTIONS } from "./lib/types";
 
+// Each of these is checked against the live catalogue: the product exists, is in
+// stock at two or more DISTINCT retailers, and has a real price gap to show. A
+// suggestion that returns one offer makes the demo argue against itself.
 const SUGGESTIONS = [
-  "Compare prices on the AOC 27 inch monitor",
-  "Compare prices for the Beats Studio Pro",
-  "Any gaming laptops under £900?",
-  "Compare prices on the ASUS wireless mouse",
-  "Compare prices on the Fairphone charger",
-  "Show me Samsung TVs",
-  "Which retailer has the best price on the AirPods Pro?",
+  "Which retailer is cheapest for the Acer Nitro 27 inch gaming monitor?",
+  "Compare prices on the AirPods Max",
+  "How much can I save on a MacBook Pro 14?",
+  "Best price on the Logitech MX Master 3S?",
+  "Compare prices on the iPad mini",
+  "Is the Samsung Galaxy S26 Ultra cheaper anywhere else?",
+  "Gaming monitors under £200",
 ];
 
 const enabledModels = MODEL_OPTIONS.filter((opt) => opt.enabled);
