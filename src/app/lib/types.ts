@@ -21,6 +21,20 @@ export type ChatMessage = {
 // to the server on every turn.
 export type ApiHistory = unknown[];
 
+// Structured specs read from retailer titles. confirmed: two or more retailers
+// state the same value. inferred: one retailer does. conflicting: retailers
+// state different values, and none is picked. A spec nobody states is absent
+// (unknown). Optional on Product: the API only sends it once trustrails#21 is
+// deployed and the catalogue refilled.
+export type AttributeSource = { retailer: string; field: "title" };
+export type Attribute =
+  | { status: "confirmed" | "inferred"; value: number; sources: AttributeSource[] }
+  | { status: "conflicting"; values: { value: number; sources: AttributeSource[] }[] };
+export type Attributes = Record<string, Attribute>;
+
+// Per spec constraint in a search; only present when the search had constraints.
+export type ConstraintStatus = Record<string, "matched" | "unverified" | "failed">;
+
 export type LiteProduct = {
   id: string;
   title: string;
@@ -31,6 +45,8 @@ export type LiteProduct = {
   image_url?: string;
   purchase_url: string;
   offer_count?: number;
+  attributes?: Attributes;
+  constraint_status?: ConstraintStatus;
 };
 
 export type Offer = {
