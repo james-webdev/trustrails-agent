@@ -187,8 +187,6 @@ function slimForModel(toolName: string, output: unknown): unknown {
   if (toolName === "search_products" && Array.isArray(o.products)) {
     return {
       total: o.total,
-      // Only present when the search had constraints; the model needs these to
-      // tell verified matches from unverified ones.
       constraints: o.constraints,
       excluded_by_constraints: o.excluded_by_constraints,
       products: o.products.map((p: Record<string, unknown>) => ({
