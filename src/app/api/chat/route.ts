@@ -57,18 +57,32 @@ const SYSTEM_PROMPT =
   "price, link it as a markdown link using that exact purchase_url, e.g. " +
   "[AO.com - GBP 33.00](https://trustrails.app/go/45687791505). Never write a URL " +
   "that did not come from a tool result, and never link to a retailer's own domain. " +
+  "Only compare prices and claim savings between offers of the same configuration: if any attribute " +
+  "is conflicting, check offers[].title first and never claim a saving between different sizes or " +
+  "configurations. " +
   "For RAM, storage, screen size, resolution, refresh rate, wattage and Wi-Fi generation, pass the " +
-  "requirement in search_products' constraints argument, not query text. When constraints apply, each " +
-  "result has constraint_status per constraint: 'matched' = the product's attribute states a value that " +
-  "meets it. 'unverified' = the attribute is unknown or retailers disagree: never treat it as a match, " +
-  "tell the user it is unconfirmed. Products whose attribute fails a constraint are left out " +
-  "(excluded_by_constraints counts them). If nothing is matched, say no verified match was found and " +
-  "offer unverified ones only as unconfirmed. If candidates_truncated is true, only 2,000 matches were " +
-  "checked: narrow by brand or category and search again before saying nothing matches. " +
-  "get_product returns attributes: 'confirmed' = two or more retailers state the same value, 'inferred' = " +
-  "one retailer's title states it, 'conflicting' = retailers state different values (tell the user they " +
-  "disagree, do not pick one), and a spec that is absent is unknown. specs.description is retailer prose " +
-  "and can describe another configuration; it never overrides attributes.";
+  "requirement in search_products' constraints argument, not query text, and always set a category (and " +
+  "brand if known) with it. If a requirement is ambiguous (e.g. '16GB' could be RAM or storage), ask the " +
+  "user or search without that constraint. When constraints apply, each result has constraint_status per " +
+  "constraint: 'matched' = a retailer's title states a value that meets it. 'unverified' = the value is " +
+  "unknown or retailers disagree: never treat it as a match, tell the user it is unconfirmed. Products " +
+  "whose stated value fails a constraint are left out (excluded_by_constraints counts them). total counts " +
+  "the products checked and not left out (matched plus unverified) and matched_total how many match every " +
+  "constraint: never say 'N products match' from total. Each result's attributes hold only the constrained " +
+  "names: state the value from there. If matched_total is 0, say no product is known to meet every " +
+  "requirement and offer unverified ones only as unconfirmed. If candidates_truncated is true, the first " +
+  "2,000 candidates in the chosen sort order were checked and more exist: add a brand or category, or a " +
+  "narrower query, and search again before saying nothing matches; if the search was already narrowed, " +
+  "tell the user the results may be incomplete. " +
+  "get_product returns attributes, the source of truth for those specs: 'confirmed' = two or more " +
+  "retailers state the same value, 'inferred' = one retailer's title states it, 'conflicting' = retailers " +
+  "state different values (tell the user they disagree, do not pick one; a retailer can appear under two " +
+  "values, so read offers[].title), and a spec that is absent is unknown. specs.description is the " +
+  "retailer's own prose: use it only for details attributes do not cover (processor, GPU, ports, weight, " +
+  "battery). It can describe another configuration or a maximum ('up to 32GB'), so it never overrides or " +
+  "fills in an attribute: if one is missing or conflicting, say it is unknown or unconfirmed, and you may " +
+  "say the retailer's description mentions X, unconfirmed. For other specs, do not guess from titles; check " +
+  "get_product.";
 
 // ---- Bot filtering: only real, submitted user turns should ever reach the LLM ----
 
@@ -122,6 +136,9 @@ function recordSpend(
 let toolsCache: { tools: unknown[]; fetchedAt: number } | null = null;
 const TOOLS_CACHE_TTL = 10 * 60 * 1000;
 
+// A JSON-RPC error from the server, worded for the caller to act on (bad constraints, say)
+class McpError extends Error {}
+
 async function mcpRequest(method: string, params?: Record<string, unknown>) {
   const res = await fetch(MCP_URL, {
     method: "POST",
@@ -129,7 +146,7 @@ async function mcpRequest(method: string, params?: Record<string, unknown>) {
     body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method, params }),
   });
   const body = await res.json();
-  if (body.error) throw new Error(`MCP error: ${body.error.message}`);
+  if (body.error) throw new McpError(`MCP error: ${body.error.message}`);
   return body.result;
 }
 
@@ -162,7 +179,14 @@ function clampSearchArgs(args: Record<string, unknown>): Record<string, unknown>
 
 async function callTool(name: string, args: Record<string, unknown>) {
   const finalArgs = name === "search_products" ? clampSearchArgs(args) : args;
-  const result = await mcpRequest("tools/call", { name, arguments: finalArgs });
+  let result;
+  try {
+    result = await mcpRequest("tools/call", { name, arguments: finalArgs });
+  } catch (error) {
+    // The model can fix its own arguments, so it gets the message instead of the turn failing
+    if (error instanceof McpError) return { error: error.message };
+    throw error;
+  }
   const text = result.content?.[0]?.text ?? "{}";
   try {
     return JSON.parse(text);
@@ -190,6 +214,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
       total: o.total,
       constraints: o.constraints,
       excluded_by_constraints: o.excluded_by_constraints,
+      matched_total: o.matched_total,
       candidates_truncated: o.candidates_truncated,
       products: o.products.map((p: Record<string, unknown>) => ({
         id: p.id,
@@ -201,6 +226,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
         offer_count: p.offer_count,
         purchase_url: p.purchase_url,
         constraint_status: p.constraint_status,
+        attributes: p.attributes,
       })),
     };
   }
@@ -209,6 +235,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
     const offers = Array.isArray(o.offers)
       ? o.offers.map((of: Record<string, unknown>) => ({
           source: of.source,
+          title: of.title,
           price: of.price,
           currency: of.currency,
           availability: of.availability,
@@ -302,12 +329,8 @@ function getCached(key: string): CacheEntry | null {
 // ---- daily spend ceiling. Still useful, costs nothing.                 ----
 
 async function deterministicFallback(userMessage: string) {
-  const result = await mcpRequest("tools/call", {
-    name: "search_products",
-    arguments: { query: userMessage, lite: true, limit: 8, sort: "relevance" },
-  });
-  const text = result.content?.[0]?.text ?? "{}";
-  const output = JSON.parse(text);
+  // A message that is only specs is rejected by the search, which reads as no match
+  const output = await callTool("search_products", { query: userMessage, limit: 8, sort: "relevance" });
   const trace: Trace = [{ name: "search_products", input: { query: userMessage }, output }];
   const count = Array.isArray(output.products) ? output.products.length : 0;
   return {
