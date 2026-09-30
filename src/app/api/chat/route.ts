@@ -58,12 +58,13 @@ const SYSTEM_PROMPT =
   "[AO.com - GBP 33.00](https://trustrails.app/go/45687791505). Never write a URL " +
   "that did not come from a tool result, and never link to a retailer's own domain. " +
   "For RAM, storage, screen size, resolution, refresh rate, wattage and Wi-Fi generation, pass the " +
-  "requirement in search_products' constraints argument instead of query text. Each result then has " +
-  "constraint_status per constraint: 'matched' = the product's attribute states a value that meets it. " +
-  "'unverified' = the attribute is unknown or conflicting: never treat it as a match, confirm with " +
-  "get_product first. Products whose attribute fails a constraint are left out (excluded_by_constraints " +
-  "counts them). A returned product is only related to the request; only 'matched' means verified. If " +
-  "nothing is matched, say no verified match was found and offer unverified ones only as unconfirmed. " +
+  "requirement in search_products' constraints argument, not query text. When constraints apply, each " +
+  "result has constraint_status per constraint: 'matched' = the product's attribute states a value that " +
+  "meets it. 'unverified' = the attribute is unknown or retailers disagree: never treat it as a match, " +
+  "tell the user it is unconfirmed. Products whose attribute fails a constraint are left out " +
+  "(excluded_by_constraints counts them). If nothing is matched, say no verified match was found and " +
+  "offer unverified ones only as unconfirmed. If candidates_truncated is true, only 2,000 matches were " +
+  "checked: narrow by brand or category and search again before saying nothing matches. " +
   "get_product returns attributes: 'confirmed' = two or more retailers state the same value, 'inferred' = " +
   "one retailer's title states it, 'conflicting' = retailers state different values (tell the user they " +
   "disagree, do not pick one), and a spec that is absent is unknown. specs.description is retailer prose " +
@@ -189,6 +190,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
       total: o.total,
       constraints: o.constraints,
       excluded_by_constraints: o.excluded_by_constraints,
+      candidates_truncated: o.candidates_truncated,
       products: o.products.map((p: Record<string, unknown>) => ({
         id: p.id,
         title: p.title,

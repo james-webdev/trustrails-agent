@@ -21,13 +21,7 @@ export type ChatMessage = {
 // to the server on every turn.
 export type ApiHistory = unknown[];
 
-export type AttributeSource = { retailer: string; field: "title" };
-export type Attribute =
-  | { status: "confirmed" | "inferred"; value: number; sources: AttributeSource[] }
-  | { status: "conflicting"; values: { value: number; sources: AttributeSource[] }[] };
-export type Attributes = Record<string, Attribute>;
-
-export type ConstraintStatus = Record<string, "matched" | "unverified" | "failed">;
+export type ConstraintStatus = "matched" | "unverified";
 
 export type LiteProduct = {
   id: string;
@@ -39,8 +33,7 @@ export type LiteProduct = {
   image_url?: string;
   purchase_url: string;
   offer_count?: number;
-  attributes?: Attributes;
-  constraint_status?: ConstraintStatus;
+  constraint_status?: Record<string, ConstraintStatus>;
 };
 
 export type Offer = {
