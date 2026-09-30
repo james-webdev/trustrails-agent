@@ -26,8 +26,8 @@ export type ConstraintStatus = "matched" | "unverified";
 export type ConstraintName = "memory_gb" | "storage_gb" | "screen_in" | "resolution_p" | "refresh_hz" | "power_w" | "wifi_gen";
 
 export type Attribute =
-  | { status: "confirmed" | "inferred"; value: number; sources: { retailer: string; field: "title" }[] }
-  | { status: "conflicting"; values: { value: number; sources: { retailer: string; field: "title" }[] }[] };
+  | { status: "confirmed" | "inferred"; value: number; sources?: { retailer: string; field: "title" }[] }
+  | { status: "conflicting"; values: { value: number; sources?: { retailer: string; field: "title" }[] }[] };
 
 export type LiteProduct = {
   id: string;
