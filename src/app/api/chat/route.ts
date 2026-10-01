@@ -67,11 +67,10 @@ const SYSTEM_PROMPT =
   "constraint: 'matched' = a retailer's title states a value that meets it. 'unverified' = not known to " +
   "meet it: check attributes[name], where conflicting means retailers disagree and missing means unknown. " +
   "Never treat it as a match, tell the user it is unconfirmed. Products " +
-  "whose stated value fails a constraint are left out (excluded_by_constraints counts them). With " +
-  "constraints, total counts the products that match every constraint and unverified_total the unverified " +
-  "products that passed the other filters (only some may be in products). Each result's attributes hold only " +
-  "the constrained names, as {status, value}: state the value from there. If total is 0, say no product is " +
-  "known to meet every requirement and offer unverified ones only as unconfirmed. If candidates_truncated is true, the first " +
+  "whose stated value fails a constraint are left out (excluded_by_constraints counts them). To say how " +
+  "many products matched, use matched_total, not total. Each result's attributes hold only the constrained " +
+  "names, as {status, value}: state the value from there. If matched_total is 0, say no product is known to meet every " +
+  "requirement and offer unverified ones only as unconfirmed. If candidates_truncated is true, the first " +
   "2,000 candidates in the chosen sort order were checked and more exist: add a brand or category, or a " +
   "narrower query, and search again before saying nothing matches; if the search was already narrowed, " +
   "tell the user the results may be incomplete. " +
@@ -215,7 +214,7 @@ function slimForModel(toolName: string, output: unknown): unknown {
       total: o.total,
       constraints: o.constraints,
       excluded_by_constraints: o.excluded_by_constraints,
-      unverified_total: o.unverified_total,
+      matched_total: o.matched_total,
       candidates_truncated: o.candidates_truncated,
       products: o.products.map((p: Record<string, unknown>) => ({
         id: p.id,
