@@ -21,6 +21,14 @@ export type ChatMessage = {
 // to the server on every turn.
 export type ApiHistory = unknown[];
 
+export type ConstraintStatus = "matched" | "unverified";
+
+export type ConstraintName = "memory_gb" | "storage_gb" | "screen_in" | "resolution_p" | "refresh_hz" | "power_w" | "wifi_gen";
+
+export type Attribute =
+  | { status: "confirmed" | "inferred"; value: number; sources?: { retailer: string; field: "title" }[] }
+  | { status: "conflicting"; values: { value: number; sources?: { retailer: string; field: "title" }[] }[] };
+
 export type LiteProduct = {
   id: string;
   title: string;
@@ -31,6 +39,8 @@ export type LiteProduct = {
   image_url?: string;
   purchase_url: string;
   offer_count?: number;
+  constraint_status?: Partial<Record<ConstraintName, ConstraintStatus>>;
+  attributes?: Partial<Record<ConstraintName, Attribute>>;
 };
 
 export type Offer = {
