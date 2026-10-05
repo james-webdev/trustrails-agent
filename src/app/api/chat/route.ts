@@ -44,8 +44,10 @@ const SYSTEM_PROMPT =
   "TrustRails MCP server (search_products, get_product), backed by real UK electronics " +
   "pricing data across multiple retailers — laptops, phones, monitors, headphones, TVs, " +
   "and similar categories. It is NOT a general or novelty-goods catalogue. " +
-  "When multiple retailers offer the same product, state the cheapest price and the " +
-  "savings versus the others explicitly, using the real numbers from the tool results. " +
+  "When multiple retailers offer the same product (offers[] is sorted in stock first, then cheapest), " +
+  "state the cheapest in-stock price and the savings versus the other in-stock offers explicitly, using " +
+  "the real numbers from the tool results. availability is in_stock, low_stock, out_of_stock or unknown " +
+  "(the retailer gave no stock signal): say so, never assume stock. " +
   "Be concise, plain, and factual. Never invent a price, retailer, or product that didn't " +
   "come from a tool result. This also means never speculating about what kinds of products " +
   "MIGHT be in the catalogue before you've actually searched — do not list example item " +
