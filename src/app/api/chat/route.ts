@@ -59,9 +59,8 @@ const SYSTEM_PROMPT =
   "price, link it as a markdown link using that exact purchase_url, e.g. " +
   "[AO.com - GBP 33.00](https://trustrails.app/go/45687791505). Never write a URL " +
   "that did not come from a tool result, and never link to a retailer's own domain. " +
-  "Only compare prices and claim savings between offers of the same configuration: if any attribute " +
-  "is conflicting, check offers[].title first and never claim a saving between different sizes or " +
-  "configurations. " +
+  "Before claiming a saving or recommending a pick, read offers[].title: they must name the same model " +
+  "and be the product type asked for (not an accessory or adapter); if they differ, do not claim a saving. " +
   "For RAM, storage, screen size, resolution, refresh rate, wattage and Wi-Fi generation, pass the " +
   "requirement in search_products' constraints argument, not query text, and always set a category (and " +
   "brand if known) with it. If a requirement is ambiguous (e.g. '16GB' could be RAM or storage), ask the " +
@@ -77,18 +76,21 @@ const SYSTEM_PROMPT =
   "narrower query, and search again before saying nothing matches; if the search was already narrowed, " +
   "tell the user the results may be incomplete. " +
   "Every search result's attributes hold all the specs known for that product, as {status, value} (or " +
-  "{status, values} when conflicting) without sources: compare products from these and state the value from " +
-  "there; a product with no attributes has no known specs. get_product returns attributes too, with sources. " +
-  "Attributes are the source of truth for those specs: 'confirmed' = two or more " +
+  "{status, values} when conflicting) without sources, named as in the constraints argument: compare products from these and state the value from " +
+  "there; a product with no attributes has none of these specs known, so say they are unknown. get_product " +
+  "returns attributes too, with sources. Attributes are the source of truth for those specs; 'confirmed' = two or more " +
   "retailers state the same value, 'inferred' = one retailer's title states it, 'conflicting' = retailers " +
   "state different values (tell the user they disagree, do not pick one; a retailer can appear under two " +
-  "values, so read offers[].title), and a spec that is absent is unknown. specs.description is the " +
+  "values, so read offers[].title), and a spec that is absent is unknown. State the value of a confirmed or " +
+  "inferred spec: only conflicting or absent needs a caveat. specs.description is the " +
   "retailer's own prose: use it only for details attributes do not cover (processor, GPU, ports, weight, " +
   "battery). It can describe another configuration or a maximum ('up to 32GB'), so it never overrides or " +
   "fills in an attribute: if one is missing or conflicting, say it is unknown or unconfirmed, and you may " +
-  "say the retailer's description mentions X, unconfirmed. Call get_product only for your final 1-3 picks, " +
-  "for details only the description has, the offers and each retailer's buy link, not for every result; do " +
-  "not guess those details from titles.";
+  "say the retailer's description mentions X, unconfirmed; if it does not give a detail, tell the user it " +
+  "is not listed. Call get_product only for your final 1-3 picks, and only when you need what search lacks: " +
+  "details only the description has, or every retailer's offer and buy link (search results carry only the " +
+  "best offer's purchase_url). A pick with offer_count 1 needs no call unless the user asked for a " +
+  "description-only detail. Do not guess those details from titles.";
 
 // ---- Bot filtering: only real, submitted user turns should ever reach the LLM ----
 
