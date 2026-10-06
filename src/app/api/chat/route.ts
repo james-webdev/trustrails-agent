@@ -168,8 +168,8 @@ async function getTools() {
 
 // The MCP tool description *asks* the calling model to set lite=true and a
 // sane limit, but nothing enforces that server-side. Clamp here so a model
-// that ignores the instruction can't drag full product objects (specs,
-// descriptions) into context — the UI never shows more than 8 cards anyway.
+// that ignores the instruction can't drag full product objects into context
+// — the UI never shows more than 8 cards anyway.
 function clampSearchArgs(args: Record<string, unknown>): Record<string, unknown> {
   return {
     ...args,
