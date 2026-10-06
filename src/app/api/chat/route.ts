@@ -72,7 +72,7 @@ const SYSTEM_PROMPT =
   "whose stated value fails a constraint are left out (excluded_by_constraints counts them). With " +
   "constraints, total counts the products that match every constraint and unverified_total the unverified " +
   "products that passed the other filters (only some may be in products). Each result's attributes hold only " +
-  "the constrained names, as {status, value}: state the value from there. If total is 0, say no product is " +
+  "the constrained names, as {status, value} or {status, values} when conflicting: state the value from there. If total is 0, say no product is " +
   "known to meet every requirement and offer unverified ones only as unconfirmed. If candidates_truncated is true, the first " +
   "2,000 candidates in the chosen sort order were checked and more exist: add a brand or category, or a " +
   "narrower query, and search again before saying nothing matches; if the search was already narrowed, " +
