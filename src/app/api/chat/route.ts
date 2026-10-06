@@ -71,21 +71,24 @@ const SYSTEM_PROMPT =
   "Never treat it as a match, tell the user it is unconfirmed. Products " +
   "whose stated value fails a constraint are left out (excluded_by_constraints counts them). With " +
   "constraints, total counts the products that match every constraint and unverified_total the unverified " +
-  "products that passed the other filters (only some may be in products). Each result's attributes hold only " +
-  "the constrained names, as {status, value} or {status, values} when conflicting: state the value from there. If total is 0, say no product is " +
+  "products that passed the other filters (only some may be in products). If total is 0, say no product is " +
   "known to meet every requirement and offer unverified ones only as unconfirmed. If candidates_truncated is true, the first " +
   "2,000 candidates in the chosen sort order were checked and more exist: add a brand or category, or a " +
   "narrower query, and search again before saying nothing matches; if the search was already narrowed, " +
   "tell the user the results may be incomplete. " +
-  "get_product returns attributes, the source of truth for those specs: 'confirmed' = two or more " +
+  "Every search result's attributes hold all the specs known for that product, as {status, value} (or " +
+  "{status, values} when conflicting) without sources: compare products from these and state the value from " +
+  "there; a product with no attributes has no known specs. get_product returns attributes too, with sources. " +
+  "Attributes are the source of truth for those specs: 'confirmed' = two or more " +
   "retailers state the same value, 'inferred' = one retailer's title states it, 'conflicting' = retailers " +
   "state different values (tell the user they disagree, do not pick one; a retailer can appear under two " +
   "values, so read offers[].title), and a spec that is absent is unknown. specs.description is the " +
   "retailer's own prose: use it only for details attributes do not cover (processor, GPU, ports, weight, " +
   "battery). It can describe another configuration or a maximum ('up to 32GB'), so it never overrides or " +
   "fills in an attribute: if one is missing or conflicting, say it is unknown or unconfirmed, and you may " +
-  "say the retailer's description mentions X, unconfirmed. For other specs, do not guess from titles; check " +
-  "get_product.";
+  "say the retailer's description mentions X, unconfirmed. Call get_product only for your final 1-3 picks, " +
+  "for details only the description has, the offers and each retailer's buy link, not for every result; do " +
+  "not guess those details from titles.";
 
 // ---- Bot filtering: only real, submitted user turns should ever reach the LLM ----
 
