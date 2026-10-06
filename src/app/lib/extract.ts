@@ -43,7 +43,7 @@ export function summarizeTool(t: ToolTrace): string {
       parts.push(`£${min_price ?? 0}–£${max_price ?? "∞"}`);
     }
     const label = parts.length ? parts.join(" · ") : "all products";
-    const sorted = sort === "price_asc" ? ", cheapest first" : sort === "price_desc" ? ", priciest first" : "";
+    const sorted = sort === "price_asc" ? ", in stock first, then cheapest" : sort === "price_desc" ? ", in stock first, then priciest" : "";
     return `Searched ${label}${sorted}`;
   }
   if (t.name === "get_product") return "Looked up full product details";
